@@ -20,8 +20,8 @@ def driver(request):
 def test_ducks(driver):
     driver.get('http://localhost/litecart/en/')
     try:
-        all_ducks = driver.find_elements_by_xpath('//*[@class="product column shadow hover-light"]/a[1]/div[1]/img')
-        all_stickers = driver.find_elements_by_xpath('//*[@class="product column shadow hover-light"]/a[1]/div[1]/div[1]')
+        all_ducks = driver.find_elements_by_xpath('//*[@class="product"]/a[1]/div[1]/img')
+        all_stickers = driver.find_elements_by_xpath('//*[@class="product"]/a[1]/div[1]/div[1]')
     except:
         print('Ошибка при получении списков уток и стикеров')
     pairs = {}
