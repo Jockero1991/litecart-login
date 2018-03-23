@@ -17,26 +17,17 @@ def driver(request):
     request.addfinalizer(wd.quit)
     return wd
 
-def test_ducks(driver):
+def test_ducks_v2(driver):
     driver.get('http://localhost/litecart/en/')
-    try:
-        all_ducks = driver.find_elements_by_xpath('//*[@class="product"]/a[1]/div[1]/img')
-        all_stickers = driver.find_elements_by_xpath('//*[@class="product"]/a[1]/div[1]/div[1]')
-    except:
-        print('Ошибка при получении списков уток и стикеров')
-    pairs = {}
-    err_count = 0
-    for x in range(len(all_ducks)):
-        if all_ducks[x].get_attribute('alt') not in pairs.keys():
-            if all_stickers[x].get_attribute('class') != None:
-                pairs.update({all_ducks[x].get_attribute('alt') : all_stickers[x].get_attribute('class')})
-            else:
-                print('у утки ' + str(all_ducks[x].get_attribute('alt')) + ' нет стикера.')
-        else:
-            if pairs[all_ducks[x].get_attribute('alt')] != all_stickers[x].get_attribute('class'):
-                err_count += 1
-                print(all_ducks[x].get_attribute('alt'), str('already exists: ' + pairs[all_ducks[x].get_attribute('alt')]), str('trying to add: ' + all_stickers[x].get_attribute('class')))
-    if err_count==0:
-        print('У всех уток уникальные стикеры')
+    sleep(1)
+    products = driver.find_elements_by_class_name('product')
+    #print(products)
+    counter=0
+    for x in range(len(products)):
+        
+        if len(driver.find_elements_by_class_name('product')[x].find_elements_by_class_name('sticker')) == 1:
+            counter += 1
+    if len(products) == counter:
+        print(f' Кол-во стикеров {counter} равно кол-ву продуктов: {len(products)} \n У каждого продукта 1 стикер.')
     else:
-        print('Кол-во разных стикеров для одинаковых уток: ' + str(err_count))
+        print('Кол-во стикеров не равно кол-ву продуктов или у какого-то продукта больше 1 стикера')
