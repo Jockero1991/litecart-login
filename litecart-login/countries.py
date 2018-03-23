@@ -28,51 +28,60 @@ def test_login_success(driver):
     print('Жмем кнопку login')
     wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@name="login"]'))).click()
     sleep(1)
-    sorting_countr(driver)
+    aggregate(driver, 'country')
+    aggregate(driver, 'geo')
 
-def sorting_countr(driver):
-    driver.get('http://localhost/litecart/admin/?app=countries&doc=countries')
-    table = driver.find_elements_by_xpath('//*[@class="dataTable"]//tr[@class="row"]')
-    print(table[37].text)
-    table_text = [x.text for x in table] # долго отрабатывает, причем неважно какой цикл ни ставь.
-    countrys = []# Массив стран
-    count_geo = [] # массив кол-ва геозон
-    ordered_list = []# Массив стран отсортированный
-    links = [] # ссылки на страны с кол-вом геозон больше 0
-    for x in range(len(table_text)):
-        countrys.append(table_text[x].split(' ')[2 : (len(table_text[x].split(' ')) - 1)])
-        countrys[x] = ' '.join(countrys[x])
-        ordered_list = sorted(countrys)
-        count_geo.append(int(table_text[x].split(' ')[(len(table_text[x].split(' ')) - 1)]))
-        if count_geo[x] > 0:
-            links.append(table[x].find_element_by_xpath('//*[@class="dataTable"]//tr[@class="row"][' + str(x+1) + ']//a').get_attribute('href'))
-        #print(countrys[x], count_geo[x])
-    ordered_list = sorted(countrys)
-    print(links)
+
+    # нужна функция для проверки обоих сценариев.
+def aggregate(driver, bead):
+    bl = ['http://localhost/litecart/admin/?app=countries&doc=countries', 'http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones']
+        
+    if bead == 'country':
+        driver.get(bl[0])
+        table = driver.find_elements_by_xpath('//*[@class="dataTable"]//tr[@class="row"]')
+        table_text = [x.text for x in table] # долго отрабатывает, почему непонятно
+        countrys = []# Массив стран
+        count_geo = [] # массив кол-ва геозон
+        links = [] # ссылки на страны с кол-вом геозон больше 0
+        for x in range(len(table_text)):
+            countrys.append(table_text[x].split(' ')[2 : (len(table_text[x].split(' ')) - 1)])
+            countrys[x] = ' '.join(countrys[x])
+            count_geo.append(int(table_text[x].split(' ')[(len(table_text[x].split(' ')) - 1)]))
+             
+            if count_geo[x] > 0:
+                links.append(driver.find_element_by_xpath('//*[@class="dataTable"]//tr[@class="row"][' + str(x+1) + ']//a').get_attribute('href'))
+        sorting(driver, countrys)
+        for y in range(len(links)):
+            driver.get(links[y])
+            list_for_chk=driver.find_elements_by_xpath('//*[@id="table-zones"]/tbody/tr//td[3]')
+            list_for_chk = [x.text for x in list_for_chk]
+            sorting(driver, list_for_chk)
+
+    if bead == 'geo':
+        driver.get(bl[1])
+        table = driver.find_elements_by_xpath('//*[@class="dataTable"]//tr[@class="row"]')
+        links = []
+        for x in range(len(table)):
+            links.append(driver.find_element_by_xpath('//*[@class="dataTable"]//tr[@class="row"][' + str(x+1) + ']//a').get_attribute('href'))
+        for y in range(len(links)):
+            driver.get(links[y])
+            list_for_chk=driver.find_elements_by_xpath('//*[@id="table-zones"]/tbody/tr//td[3]')
+            list_for_chk = [x.text for x in list_for_chk]
+            sorting(driver, list_for_chk)
+
+    
+def sorting(driver, unordered_lst):
+    ordered_list = []
     check_sum = 0
-    for y in range(len(countrys)):
-        if countrys[y] == ordered_list[y]:
+    errors = []
+    ordered_list = sorted(unordered_lst)
+    for i in range(len(unordered_lst)):
+        if ordered_list[i] == unordered_lst[i]:
             check_sum += 1
-    if check_sum == len(ordered_list):
-        print('Список стран отсортирован по алфавиту')
-    for z in range(len(links)):
-        list_for_chk=[]
-        check_sum = 0
-        #print(links[z].get_attribute('href'))
-        driver.get(links[z])
-        sleep(6)
-        list_for_chk=driver.find_elements_by_xpath('//*[@id="table-zones"]/tbody/tr//td[3]')
-        internal_ordered_list = []# список стран внутри страницы
-        errors = []
-        list_for_chk = [x.text for x in range(len(list_for_chk))]
-        ord_list = sorted(list_for_chk)
-        for i in range(len(list_for_chk)):
-            if list_for_chk[i] == ord_list[i]:
-                check_sum += 1
-            else:
-                errors.append(list_for_chk[i])
-        if check_sum==len(list_for_chk):
-            print('Список временных зон страны отсортирован')
         else:
-            print('Список не отсортирован!')
-        #print(list_for_chk[i].text) #[0].get_attribute('value')
+            errors.append(unordered_lst[i])
+    if check_sum == len(unordered_lst):
+        print('Список отсортирован по алфавиту')
+    else:
+        print('Список не отсортирован!')
+
