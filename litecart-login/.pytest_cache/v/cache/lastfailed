@@ -1,3 +1,4 @@
 {
+  "countries.py::test_login_success": true,
   "countries.py::test_sorting_countr": true
 }
