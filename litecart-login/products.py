@@ -43,7 +43,6 @@ def test_main(driver):
 
 def aggr_products(driver, pr):
     result_list = [[]]
-    links =[]
     #products = driver.find_element_by_xpath('//*[@id="box-campaigns"]').find_elements_by_class_name('product')
     for x in range(len(pr)):
         for y in range(len(pr)):
