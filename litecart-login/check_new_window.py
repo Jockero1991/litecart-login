@@ -32,22 +32,27 @@ def test_login_success(driver):
     driver.find_elements_by_id('app-')[2].click()
     driver.find_element_by_xpath('//*[@id="content"]//a[@class="button"]').click()
     sleep(1)
+    all_windws = driver.window_handles
 
     # Получить элементы всех ссылок на внешние источники.
     ext_links = driver.find_elements_by_class_name('fa-external-link')
     for x in range(len(ext_links)):
-        ext_links = driver.find_elements_by_class_name('fa-external-link')
         start_window = driver.current_window_handle
+        
+        #print(start_window)
+        ext_links[x].click()
+        sleep(5)
         all_windws = driver.window_handles
-        ext_links.click()
-        #newWindow = wait.until((existingWindows))
-        sleep(4)
-
-def find_new_win(arr1, arr2, driver):
-    for t in range(len(arr1)):
-        for z in range(len(arr2)):
-            if arr1[t] <> arr2[z]:
-                
+        
+        newWindow = all_windws[1]
+        driver.switch_to.window(newWindow)
+        
+        sleep(1)
+        driver.close()
+        
+        driver.switch_to.window(start_window)
+        
+        sleep(2)
 
 
 
